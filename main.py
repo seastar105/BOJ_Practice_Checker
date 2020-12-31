@@ -3,14 +3,14 @@ import os
 import re
 from bs4 import BeautifulSoup
 
-def load_target_problems(base_dir):
+def load_mandatory_problems(base_dir):
     ret = list()
     try:
-        data = open(os.path.join(base_dir, 'target_problem_list.txt'))
+        data = open(os.path.join(base_dir, 'mandatory_problem_list.txt'))
     except:
         return ret
     for problem in data:
-        ret.append(int(problem))
+        ret.append(int(problem.strip()))
     return ret
 
 def load_except_user(base_dir):
@@ -20,7 +20,7 @@ def load_except_user(base_dir):
     except:
         return ret
     for user in data:
-        ret.append(user)
+        ret.append(user.strip())
     return ret
 
 def load_total_user(base_dir):
@@ -32,7 +32,7 @@ def load_total_user(base_dir):
         sys.exit(-1)
     ret = list()
     for user in data:
-        ret.append(user)
+        ret.append(user.strip())
     return ret
 
 def main(argc, argv):
@@ -45,6 +45,7 @@ def main(argc, argv):
     script_path = os.path.dirname(os.path.abspath(__file__))
     file_name = argv[1]
     html_path = os.path.join(script_path, file_name)
+    output_path = os.path.join(script_path, 'output.txt')
     try:
         data = open(html_path, encoding='utf-8')
     except:
@@ -78,9 +79,9 @@ def main(argc, argv):
     #######################################################################
 
     ########################## GET ACTIVE USERS ###########################
-    target_problems = load_target_problems(script_path)
-    if len(target_problems) == 0:
-        target_problems = problem_list
+    mandatory_problems = load_mandatory_problems(script_path)
+    if len(mandatory_problems) == 0:
+        mandatory_problems = problem_list
     table_id = 'contest_scoreboard'
     if mhtml_flag:
         table_id = '=3D"contest_scoreboard"'
@@ -91,18 +92,25 @@ def main(argc, argv):
         accept_class = '3D"accepted"'
     for row in table.find_all('tr'):
         user_id = row.find('a').contents[0]
-        active_user_list[user_id] = []
+        active_user_list[user_id] = list()
         tds = row.find_all('td')
         for i, td in enumerate(tds):
             if td.has_attr('class') and (accept_class in td['class']):
                 number = problem_list[i]
-                if number in target_problems:
+                if number in mandatory_problems:
                     active_user_list[user_id].append(number)
-    for user in active_user_list:
-        print(active_user_list[user])
     #######################################################################
-
-    
+     
+    ########################### MAKE BAN USERS ############################
+    print(mandatory_problems)
+    ban_list = list()
+    for user in user_list:
+        if user not in active_user_list or len(active_user_list[user]) != len(mandatory_problems):
+            ban_list.append(user.strip())
+    f = open(output_path, 'w')
+    f.write('\n'.join(ban_list))
+    f.close()
+    #######################################################################
 
 
 if __name__ == "__main__":
