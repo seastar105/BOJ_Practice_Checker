@@ -20,6 +20,16 @@
 
 
 
+## 실행 예시
+
+### 윈도우 
+
+![그림 2](assets/window_example.PNG)
+
+### 리눅스
+
+![그림 3](assets/linux_example.PNG)
+
 ## Requirements
 
 BeautifulSoup4
