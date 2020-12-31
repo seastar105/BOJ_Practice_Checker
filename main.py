@@ -3,6 +3,16 @@ import os
 import re
 from bs4 import BeautifulSoup
 
+def load_target_problems(base_dir):
+    ret = list()
+    try:
+        data = open(os.path.join(base_dir, 'target_problem_list.txt'))
+    except:
+        return ret
+    for problem in data:
+        ret.append(int(problem))
+    return ret
+
 def load_except_user(base_dir):
     ret = list()
     try:
@@ -47,8 +57,10 @@ def main(argc, argv):
     ############################## LOAD USER ##############################
     total_user_list = load_total_user(script_path)
     except_user_list = load_except_user(script_path)
-    user_list = [user for user in total_user_list if not in user not in except_user_list]
+    user_list = [user for user in total_user_list if user not in except_user_list]
     #######################################################################
+
+    ############################# PARSE PROBLEMS ##########################
     problem_list = list()
     pattern = re.compile(r'[0-9]{4,5}')
     mhtml_flag = False
@@ -60,7 +72,38 @@ def main(argc, argv):
     for div in soup.find_all('li', attrs={'class':problem_class}):
         problem_number = re.search(pattern, div.find('a')['href']).group()
         problem_list.append(problem_number)
+    problem_rev_table = dict()
+    for i in range(len(problem_list)):
+        problem_rev_table[i] = problem_list[i]
+    #######################################################################
+
+    ########################## GET ACTIVE USERS ###########################
+    target_problems = load_target_problems(script_path)
+    if len(target_problems) == 0:
+        target_problems = problem_list
+    table_id = 'contest_scoreboard'
+    if mhtml_flag:
+        table_id = '=3D"contest_scoreboard"'
+    table = soup.find('table', attrs={'id':table_id}).find('tbody')
+    active_user_list = dict()
+    accept_class = "accepted"
+    if mhtml_flag:
+        accept_class = '3D"accepted"'
+    for row in table.find_all('tr'):
+        user_id = row.find('a').contents[0]
+        active_user_list[user_id] = []
+        tds = row.find_all('td')
+        for i, td in enumerate(tds):
+            if td.has_attr('class') and (accept_class in td['class']):
+                number = problem_list[i]
+                if number in target_problems:
+                    active_user_list[user_id].append(number)
+    for user in active_user_list:
+        print(active_user_list[user])
+    #######################################################################
+
     
+
 
 if __name__ == "__main__":
     main(len(sys.argv), sys.argv)
