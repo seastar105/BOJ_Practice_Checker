@@ -52,7 +52,7 @@ def main(argc, argv):
         print("No File {}".format(html_path))
         print("Script File and HTML File should be in same directory")
         sys.exit(-1)
-    soup = BeautifulSoup(data, 'lxml')
+    soup = BeautifulSoup(data, 'html.parser')
     #######################################################################
 
     ############################## LOAD USER ##############################
