@@ -72,7 +72,7 @@ def main(argc, argv):
         problem_class = '3D"list-group-item"'
     for div in soup.find_all('li', attrs={'class':problem_class}):
         problem_number = re.search(pattern, div.find('a')['href']).group()
-        problem_list.append(problem_number)
+        problem_list.append(int(problem_number.strip()))
     problem_rev_table = dict()
     for i in range(len(problem_list)):
         problem_rev_table[i] = problem_list[i]
@@ -91,7 +91,7 @@ def main(argc, argv):
     if mhtml_flag:
         accept_class = '3D"accepted"'
     for row in table.find_all('tr'):
-        user_id = row.find('a').contents[0]
+        user_id = row.find('a').contents[0].strip()
         active_user_list[user_id] = list()
         tds = row.find_all('td')
         for i, td in enumerate(tds):
@@ -102,11 +102,16 @@ def main(argc, argv):
     #######################################################################
      
     ########################### MAKE BAN USERS ############################
-    print(mandatory_problems)
     ban_list = list()
     for user in user_list:
-        if user not in active_user_list or len(active_user_list[user]) != len(mandatory_problems):
+        if user not in active_user_list:
             ban_list.append(user.strip())
+            continue
+        for p in mandatory_problems:
+            if p not in active_user_list[user]:
+                print(p, active_user_list[user])
+                ban_list.append(user.strip())
+                break
     f = open(output_path, 'w')
     f.write('\n'.join(ban_list))
     f.close()
