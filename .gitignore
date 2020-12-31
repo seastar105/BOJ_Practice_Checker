@@ -1,1 +1,5 @@
 .check_env/
+*.html
+*.mhtml
+output
+same_files/
