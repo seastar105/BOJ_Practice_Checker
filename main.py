@@ -109,7 +109,6 @@ def main(argc, argv):
             continue
         for p in mandatory_problems:
             if p not in active_user_list[user]:
-                print(p, active_user_list[user])
                 ban_list.append(user.strip())
                 break
     f = open(output_path, 'w')
