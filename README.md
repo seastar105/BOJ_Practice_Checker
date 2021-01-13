@@ -32,7 +32,7 @@
 
 ## Requirements
 
-BeautifulSoup4
+BeautifulSoup4(4.9.3에서는 돌아가고 4.9.0에서 안돌아가는 것을 확인했습니다.)
 
 Requests
 
